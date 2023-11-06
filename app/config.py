@@ -1,2 +1,4 @@
-MONGO_DB_URL = "mongodb://127.0.0.1:27017"
+
+
+MONGO_DB_URL = 'mongodb+srv://magicpost:21020550@magicpost.uvauqpt.mongodb.net/?retryWrites=true&w=majority'
 MONGO_DB_NAME = "MagicPostTest"
