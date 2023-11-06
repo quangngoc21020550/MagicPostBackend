@@ -6,7 +6,7 @@ redis-py-cluster==2.0.0
 cachetools==4.0.0
 requests==2.22.0
 pyjwt==1.7.1
-pymongo==3.11.0
+pymongo[srv]==4.3.3
 kafka-python==2.0.1
 fastapi-utils==0.2.1
 mongoengine==0.20.0
