@@ -17,7 +17,7 @@ passlib==1.7.2
 pydantic==1.7.3
 pypika==0.39.1
 slugify==0.0.1
-uvicorn==0.17.6
+uvicorn
 jsonschema==3.2.0
 pykafka==2.8.0
 python-keycloak==0.24.0
