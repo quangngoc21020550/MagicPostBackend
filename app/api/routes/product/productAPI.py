@@ -31,7 +31,7 @@ async def insedrt(
         # dict_cache.runApp()
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
-        return JSONResponse(status_code=400,content="Err")
+        return JSONResponse(status_code=400,content=e)
 
 @router.get("/get")
 async def get():
@@ -39,5 +39,5 @@ async def get():
         resp = list(productdb.getModel().find())
         return JSONResponse(status_code=200,content=resp)
     except Exception as e:
-        return JSONResponse(status_code=400,content="Err")
+        return JSONResponse(status_code=400,content=e)
 
