@@ -23,7 +23,7 @@ class userInformationSearch(BaseModel):
 class userInformationInsmodel(BaseModel):
     username: str
     password: str
-    roles: list[str]
+    roles: List[str]
     createdDate: int
     lastUpdatedDate: int
 
