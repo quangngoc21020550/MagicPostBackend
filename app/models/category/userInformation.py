@@ -1,5 +1,5 @@
 import pymongo
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from app.models.modelbase import modelBase
 
@@ -8,7 +8,7 @@ class userInformationModel(BaseModel):
     id: str = Field(..., alias='_id')
     username: str
     password: str
-    roles: list[str]
+    roles: List[str]
     createdDate: int
     lastUpdatedDate: int
 
