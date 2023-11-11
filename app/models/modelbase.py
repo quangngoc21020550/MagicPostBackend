@@ -98,14 +98,14 @@ class modelBase:
             # print(idss)
 
             request_json['_id'] = idss
-            if "createdate" not in request_json:
-                 request_json['createdate']= round(time.time() * 1000)
-            elif request_json["createdate"] == 0:
-                request_json['createdate'] = round(time.time() * 1000)
-            if "updatedate" not in request_json:
-                request_json['updatedate']= None
-            elif request_json["updatedate"] == 0:
-                request_json['updatedate'] = None
+            # if "createdate" not in request_json:
+            #      request_json['createdate']= round(time.time() * 1000)
+            # elif request_json["createdate"] == 0:
+            #     request_json['createdate'] = round(time.time() * 1000)
+            # if "updatedate" not in request_json:
+            #     request_json['updatedate']= None
+            # elif request_json["updatedate"] == 0:
+            #     request_json['updatedate'] = None
 
             docinserted = self.db[self.clname].insert_one(request_json)
             if docinserted.inserted_id == idss:

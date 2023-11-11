@@ -1,6 +1,8 @@
 import pymongo
 from typing import Optional
 from pydantic import BaseModel, Field
+
+from app.models import common
 from app.models.modelbase import modelBase
 
 
@@ -32,3 +34,11 @@ class employeeInsmodel(BaseModel):
 
 class employee(modelBase):
     pass
+
+
+def signUp(employeeInfo, employeedb,managerdb):
+    if common.checkManagerExist(employeeInfo["managedBy"], employeeInfo["type"], managerdb):
+        resp = employeedb.insert_doc("", json=employeeInfo)
+        return resp
+    else:
+        return (400, {'message': "manager not exist"})

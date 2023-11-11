@@ -2,7 +2,7 @@ from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from fastapi import APIRouter, Body, Depends, HTTPException,status,Request,Response
+from fastapi import APIRouter, Body, Depends, HTTPException, status, Request, Response, Header
 from fastapi.encoders import jsonable_encoder
 from typing import List
 # from app.core.utilscm import  authrequire
@@ -19,6 +19,7 @@ router = APIRouter()
 # @authrequire.check_roles_required(roles_required=["admin"])
 async def insedrt(
     toStorageOrder: toStorageOrder.toStorageOrderInsmodel = Body(..., embed=True),
+validate_token: str = Header("")
         # current_user: dict = Depends(get_current_user),request : Request = None
 ):
     # wrong_get_error = HTTPException(
@@ -31,7 +32,7 @@ async def insedrt(
         # dict_cache.runApp()
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
-        return JSONResponse(status_code=400,content=e)
+        return JSONResponse(status_code=400,content={"message" : str(e)})
 
 @router.get("/get")
 async def get():
@@ -39,5 +40,5 @@ async def get():
         resp = list(toStorageOrderdb.getModel().find())
         return JSONResponse(status_code=200,content=resp)
     except Exception as e:
-        return JSONResponse(status_code=400,content=e)
+        return JSONResponse(status_code=400,content={"message" : str(e)})
 

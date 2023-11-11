@@ -28,3 +28,7 @@ class directorInsmodel(BaseModel):
 
 class director(modelBase):
     pass
+
+def signUp(directorInfo, directordb):
+    resp = directordb.insert_doc("", json=directorInfo)
+    return resp

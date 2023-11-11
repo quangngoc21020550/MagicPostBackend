@@ -1,6 +1,8 @@
 import pymongo
 from typing import Optional
 from pydantic import BaseModel, Field
+
+from app.models import common
 from app.models.modelbase import modelBase
 
 
@@ -26,3 +28,7 @@ class gatheringPointInsmodel(BaseModel):
 
 class gatheringPoint(modelBase):
     pass
+
+def gatheringPointInsert(gatheringPointInfo, gatheringPointdb):
+    resp = gatheringPointdb.insert_doc("", json=gatheringPointInfo)
+    return resp

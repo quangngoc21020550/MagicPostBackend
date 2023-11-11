@@ -28,3 +28,7 @@ class customerInsmodel(BaseModel):
 
 class customer(modelBase):
     pass
+
+def signUp(customerInfo, customerdb):
+    resp = customerdb.insert_doc("", json=customerInfo)
+    return resp
