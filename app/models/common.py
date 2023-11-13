@@ -135,10 +135,6 @@ def reset_password_via_email(email, newPassword):
 def generate_random_string(num:int):
         return ''.join(random.sample(string.ascii_lowercase, num))
 
-def genStaticCode(numlen:int = 8,lst:set[str] = None):
+def genStaticCode(numlen:int = 8):
     randomCode = generate_random_string(numlen)
-    if lst is None or len(lst) == 0:
-        return generate_random_string(numlen)
-    while randomCode in lst:
-        randomCode = generate_random_string(numlen)
     return randomCode
