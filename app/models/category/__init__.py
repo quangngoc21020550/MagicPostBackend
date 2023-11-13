@@ -1,5 +1,5 @@
 from . import customer, director, employee, gatheringPoint, manager, packageInformation, \
-            storage, toStorageOrder, toCustomerOrder, transactionPoint, userInformation
+            storage, toStorageOrder, toCustomerOrder, transactionPoint, userInformation, passwordForgotRequest
 from app.db import db
 
 customerdb = customer.customer(collectionname="customer",db=db)
@@ -13,3 +13,4 @@ toStorageOrderdb = toStorageOrder.toStorageOrder(collectionname="toStorageOrder"
 toCustomerOrderdb = toCustomerOrder.toCustomerOrder(toCustomerOrder="customer",db=db)
 transactionPointdb = transactionPoint.transactionPoint(collectionname="transactionPoint",db=db)
 userInformationdb = userInformation.userInformation(collectionname="userInformation",db=db)
+passwordForgotRequestdb = passwordForgotRequest.passwordForgotRequest(collectionname="passwordForgotRequest",db=db)

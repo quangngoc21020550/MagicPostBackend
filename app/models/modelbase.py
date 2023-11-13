@@ -144,7 +144,7 @@ class modelBase:
             id = request_json['_id']
             if self.schema != None and self.validateJson(request_json, self.schema) == False:
                 return (400, "JsonSchema failed validation")
-            request_json['updatedate'] = round(time.time() * 1000)
+            # request_json['updatedate'] = round(time.time() * 1000)
 
             # print(request_json)
 
@@ -225,8 +225,8 @@ class modelBase:
                     listidss.append(idss)
 
                 # print(idss)
-                request_json['createdate'] = round(time.time() * 1000)
-                request_json['updatedate'] = None
+                # request_json['createdate'] = round(time.time() * 1000)
+                # request_json['updatedate'] = None
                 request_json['_id'] = idss
             docinserted = self.db[self.clname].insert_many(list_request_json)
             if docinserted.inserted_ids == listidss:

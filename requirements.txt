@@ -23,3 +23,5 @@ pykafka==2.8.0
 python-keycloak==0.24.0
 itsdangerous==1.1.0
 python-multipart==0.0.5
+verify-email==2.4.3
+nest-asyncio==1.5.8

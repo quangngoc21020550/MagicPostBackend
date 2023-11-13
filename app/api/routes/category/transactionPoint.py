@@ -9,7 +9,8 @@ from typing import List
 # from app.core.utilscm.authrequire import get_current_user
 # from app.callcache import dict_cache
 from app.models import common
-from app.models.category import transactionPoint, transactionPointdb, gatheringPointdb
+from app.models.category import transactionPoint, transactionPointdb, gatheringPointdb, managerdb, manager, employee, \
+    employeedb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -28,8 +29,8 @@ validate_token: str = Header("")
     # )
     try:
         body = jsonable_encoder(body)
-        if 'director' not in common.getRolesFromToken(validate_token):
-            raise Exception("Not authenticated")
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
         resp = transactionPoint.transactionPointInsert(body, transactionPointdb,gatheringPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
@@ -43,3 +44,117 @@ async def get():
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
 
+@router.post("/delete")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: transactionPoint.transactionPointDel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        pointId = body.get('_id')
+        numManagerLeft = len(list(managerdb.getModel().find({"pointManaged": pointId})))
+        numEmployeeLeft = len(list(employeedb.getModel().find({"pointManaged": pointId})))
+        if numEmployeeLeft + numManagerLeft > 0:
+            raise Exception('Still workers points left')
+        resp = transactionPointdb.delete_doc("", json=body)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.post("/change-gathering-point")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: transactionPoint.transactionPointUpdGatheringPointModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        pointId = body.get('pointId')
+        try:
+            thisTransPoint = list(transactionPointdb.getModel().find({"_id": pointId}))[0]
+        except:
+            raise Exception('data to found')
+        if not common.checkPointExist(body.get('belongsTo'), 'gathering', gatheringPointdb, transactionPointdb):
+            raise Exception('gathering point not exist')
+        thisTransPoint["belongsTo"] = body.get('belongsTo')
+        resp = transactionPointdb.update_doc("", json=thisTransPoint)
+
+        # if resp[0] == 200 and resp[1]["_id"] is not None:
+        #     pointId = resp[1]["_id"]
+        #     thisManager = list(managerdb.getModel().find({'pointManaged': pointId}))
+        #     if len(thisManager) > 0:
+        #         thisManager = thisManager[0]
+        #         manager.updateManagerPoint('transaction', thisManager['_id'], None, managerdb)
+        #         employee.updateEmployeesPoint(thisManager['_id'], None, employeedb)
+                # transactionPoint.transactionPointUpdateGatheringPoint(pointId, None, transactionPointdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.post("/change-manager")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: transactionPoint.transactionPointUpdManagerModel = Body(..., embed=True),
+    validate_token: str = Header("")
+):
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        pointId = body.get('pointId')
+        try:
+            thisTransPoint = list(transactionPointdb.getModel().find({"_id": pointId}))[0]
+            thisManager = common.getManager(body.get('managedBy'), managerdb)
+        except:
+            raise Exception('data to found')
+        if not common.checkManagerExist(body.get('managedBy'), 'transaction', managerdb):
+            raise Exception('manager not exist')
+        if thisTransPoint["managedBy"] is not None:
+            raise Exception("this point already have manager")
+        thisTransPoint["managedBy"] = body.get('managedBy')
+        resp = transactionPointdb.update_doc("", json=thisTransPoint)
+        if resp[0] == 200:
+            # thisManager = list(managerdb.getModel().find({'_id': body.get('managedBy')}))
+            # if len(thisManager) > 0:
+            #     thisManager = thisManager[0]
+            oldPointId = thisManager["pointManaged"]
+            manager.deletePointManager('transaction',oldPointId , gatheringPointdb, transactionPointdb)
+            thisManager["pointManaged"] = pointId
+            managerdb.update_doc("", json=thisManager)
+            employee.updateEmployeesManager(body.get('managedBy'), pointId, employeedb)
+            employee.updateEmployeesManager(None, oldPointId, employeedb)
+        return JSONResponse(status_code=resp[0], content=resp[1])
+
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+
+@router.post("/update")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: transactionPoint.transactionPointModel = Body(..., embed=True),
+    validate_token: str = Header("")
+):
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        resp = transactionPointdb.update_doc("", json=body)
+        return JSONResponse(status_code=resp[0], content=resp[1])
+
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})

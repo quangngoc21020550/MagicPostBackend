@@ -8,7 +8,9 @@ from app.models.modelbase import modelBase
 
 class gatheringPointModel(BaseModel):
     id: str = Field(..., alias='_id')
-    managedBy: str
+    name: str
+    code: str
+    managedBy: Optional[str] = None
     createdDate: int
     lastUpdatedDate: int
 
@@ -21,7 +23,9 @@ class gatheringPointSearch(BaseModel):
     pageindex: int
 
 class gatheringPointInsmodel(BaseModel):
-    managedBy: str
+    name: str
+    code: str
+    managedBy: Optional[str] = None
     createdDate: int
     lastUpdatedDate: int
 
@@ -32,3 +36,7 @@ class gatheringPoint(modelBase):
 def gatheringPointInsert(gatheringPointInfo, gatheringPointdb):
     resp = gatheringPointdb.insert_doc("", json=gatheringPointInfo)
     return resp
+
+class gatheringPointUpdManagerModel(BaseModel):
+    pointId: str
+    managedBy: str

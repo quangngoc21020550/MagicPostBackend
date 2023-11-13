@@ -32,3 +32,6 @@ class customer(modelBase):
 def signUp(customerInfo, customerdb):
     resp = customerdb.insert_doc("", json=customerInfo)
     return resp
+
+def deleteAccount(customerId, customdb):
+    customdb.delete_doc("", json={'_id': customerId})

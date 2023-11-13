@@ -30,5 +30,11 @@ class director(modelBase):
     pass
 
 def signUp(directorInfo, directordb):
-    resp = directordb.insert_doc("", json=directorInfo)
+    if len(list(directordb.getModel().find({"username": directorInfo["username"]}))) > 0:
+        resp = directordb.update_doc("", json=directorInfo)
+    else:
+        resp = directordb.insert_doc("", json=directorInfo)
     return resp
+
+def deleteAcount(directorId, directordb):
+    directordb.delete_doc("", json={"_id": directorId})
