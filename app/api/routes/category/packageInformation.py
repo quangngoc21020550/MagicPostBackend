@@ -9,8 +9,9 @@ from typing import List
 # from app.core.utilscm import  authrequire
 # from app.core.utilscm.authrequire import get_current_user
 # from app.callcache import dict_cache
-from app.models.category import packageInformation, packageInformationdb
-
+from app.models import common
+from app.models.category import packageInformation, packageInformationdb, gatheringPointdb, transactionPointdb, storage, \
+    storagedb, customerdb, toCustomerOrderdb, toStorageOrderdb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -19,7 +20,7 @@ router = APIRouter()
 @router.post("/insert")
 # @authrequire.check_roles_required(roles_required=["admin"])
 async def insedrt(
-    packageInformation: packageInformation.packageInformationInsmodel = Body(..., embed=True),
+    body: packageInformation.packageInformationInsmodel = Body(..., embed=True),
 validate_token: str = Header("")
         # current_user: dict = Depends(get_current_user),request : Request = None
 ):
@@ -28,18 +29,93 @@ validate_token: str = Header("")
     #     detail=strings.INCORRECT_INPUT,
     # )
     try:
-        ct = jsonable_encoder(packageInformation)
-        resp = packageInformationdb.insert_doc("", json=ct)
+        encoded_body = jsonable_encoder(body)
+        customerId = encoded_body.get('sender')
+        if common.getCustomer(customerId, customerdb) is None:
+            raise Exception('Customer not found')
+        resp = packageInformation.createPackageInfomation(encoded_body,packageInformationdb, gatheringPointdb, transactionPointdb)
         # dict_cache.runApp()
+        if resp[0] == 200:
+            recordModel = {
+                "type": "transaction",
+                "packageId": resp[1]["_id"],
+                "pointId": encoded_body["fromTransactionPoint"],
+                "createdDate": encoded_body["createdDate"],
+                "lastUpdatedDate": encoded_body["lastUpdatedDate"]
+            }
+            resp0 = storage.insertToStorage(recordModel, storagedb)
+            if resp0[0] != 200:
+                packageInformationdb.getModel().delete_one(resp[1]["_id"])
+                raise ("Failed to insert to storage")
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
+
+# @router.post("/update-status")
+# # @authrequire.check_roles_required(roles_required=["admin"])
+# async def insedrt(
+#     body: packageInformation.packageInformationInsmodel = Body(..., embed=True),
+# validate_token: str = Header("")
+#         # current_user: dict = Depends(get_current_user),request : Request = None
+# ):
+#     # wrong_get_error = HTTPException(
+#     #     status_code=HTTP_400_BAD_REQUEST,
+#     #     detail=strings.INCORRECT_INPUT,
+#     # )
+#     try:
+#         encoded_body = jsonable_encoder(body)
+#         resp = packageInformation.createPackageInfomation(encoded_body,packageInformationdb, gatheringPointdb, transactionPointdb)
+#         # dict_cache.runApp()
+#         return JSONResponse(status_code=resp[0],content=resp[1])
+#     except Exception as e:
+#         return JSONResponse(status_code=400,content={"message" : str(e)})
 
 @router.get("/get")
 async def get():
     try:
         resp = list(packageInformationdb.getModel().find())
         return JSONResponse(status_code=200,content=resp)
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
+
+@router.post("/get-package-info-for-customer")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: packageInformation.getPackageForCustomerModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if not common.getRoleFromToken(validate_token) == "customer":
+            raise Exception("No authorization")
+        encoded_body = jsonable_encoder(body)
+        resp = packageInformation.getPackageForCustomer(encoded_body, packageInformationdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.post("/get-info-for-package")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: packageInformation.getInformationForPackageModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if not common.getRoleFromToken(validate_token) == "customer":
+            raise Exception("No authorization")
+        encoded_body = jsonable_encoder(body)
+        resp = packageInformation.getInfoForPackage(encoded_body, toStorageOrderdb, toCustomerOrderdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
 

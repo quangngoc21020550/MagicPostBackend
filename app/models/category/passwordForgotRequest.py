@@ -58,15 +58,15 @@ def forgotPassword(username,userInformation, userInformationdb, passwordForgotRe
         username = thisUser["username"]
     else:
         return (400, {"message": "This account not exist"})
-    role = common.getRoleFromUserInfo(thisUser)
-    if role in ["customer", "director"]:
-        newPassword = common.genStaticCode(8)
-        # newPassword = "abc"
-        thisUser["password"] = newPassword
-        resp = userInformation.changePassword(thisUser, userInformationdb)
-        common.reset_password_via_email(thisUser["email"], newPassword)
-    else:
-        resp = sendPasswordResupplyRq(thisUser, passwordForgotRequestdb, employeedb, managerdb, directordb)
-    return resp
+    # role = common.getRoleFromUserInfo(thisUser)
+    # if role in ["customer", "director"]:
+    newPassword = common.genStaticCode(8)
+    # newPassword = "abc"
+    thisUser["password"] = newPassword
+    resp = userInformation.changePassword(thisUser, userInformationdb)
+    return common.reset_password_via_email(thisUser["email"], newPassword)
+    # else:
+    #     resp = sendPasswordResupplyRq(thisUser, passwordForgotRequestdb, employeedb, managerdb, directordb)
+    # return resp
 
 

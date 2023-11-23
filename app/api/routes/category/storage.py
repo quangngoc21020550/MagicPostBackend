@@ -8,8 +8,8 @@ from typing import List
 # from app.core.utilscm import  authrequire
 # from app.core.utilscm.authrequire import get_current_user
 # from app.callcache import dict_cache
-from app.models.category import storage, storagedb
-
+from app.models import common
+from app.models.category import storage, storagedb, toStorageOrderdb, toCustomerOrderdb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -41,4 +41,34 @@ async def get():
         return JSONResponse(status_code=200,content=resp)
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.post("/get-package-by-pointid")
+async def insedrt(
+    body: storage.getRecordInStorageModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    try:
+        # if not common.getRoleFromToken(validate_token)
+        encoded_body = jsonable_encoder(body)
+        resp = storage.getPackageInStorage(encoded_body, storagedb)
+        # dict_cache.runApp()
+        return JSONResponse(status_code=resp[0], content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+
+@router.post("/get-data-by-pointid")
+async def insedrt(
+    body: storage.getDataInStorageModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    try:
+        # if not common.getRoleFromToken(validate_token)
+        encoded_body = jsonable_encoder(body)
+        resp = storage.getDataInStorage(encoded_body, toStorageOrderdb, toCustomerOrderdb)
+        # dict_cache.runApp()
+        return JSONResponse(status_code=resp[0], content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
 

@@ -10,7 +10,7 @@ from typing import List
 # from app.callcache import dict_cache
 from app.models import common
 from app.models.category import transactionPoint, transactionPointdb, gatheringPointdb, managerdb, manager, employee, \
-    employeedb
+    employeedb, toStorageOrderdb, storagedb, toCustomerOrderdb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -64,6 +64,14 @@ validate_token: str = Header("")
         numEmployeeLeft = len(list(employeedb.getModel().find({"pointManaged": pointId})))
         if numEmployeeLeft + numManagerLeft > 0:
             raise Exception('Still workers points left')
+
+        numOrdersLeft = len(list(toStorageOrderdb.getModel().find({"fromPoint": pointId}, {'status': 'transporting'}))) + \
+                        len(list(toStorageOrderdb.getModel().find({"toPoint": pointId}, {'status': 'transporting'}))) + \
+                        len(list(toCustomerOrderdb.getModel().find({"transactionPointId": pointId}, {'status': 'transporting'})))
+        numPackageLeft = len(list(storagedb.getModel().find({"pointId": pointId})))
+        if numOrdersLeft + numPackageLeft > 0:
+            raise Exception('Still processing orders left')
+
         resp = transactionPointdb.delete_doc("", json=body)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
@@ -158,3 +166,23 @@ async def insedrt(
 
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": str(e)})
+
+@router.post("/get-transaction-points")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: transactionPoint.transactionPointSearch = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        resp = transactionPoint.getAllPoint(body, transactionPointdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})

@@ -25,7 +25,7 @@ class transactionPointDel(BaseModel):
     id: str = Field(..., alias='_id')
 
 class transactionPointSearch(BaseModel):
-    content : dict
+    # content : dict
     pagesize: int
     pageindex: int
 
@@ -65,3 +65,7 @@ def oneTransactionPointUpdateGatheringPoint(transactionPointId,newGatheringPoint
     thisTransPoint['belongsTo'] = newGatheringPointId
     transactionPointdb.update_doc("", json=thisTransPoint)
 
+def getAllPoint(getInfo, pointdb):
+    pagesize = getInfo["pagesize"]
+    pageindex = getInfo["pageindex"]
+    return 200, list(pointdb.getModel().find().sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))

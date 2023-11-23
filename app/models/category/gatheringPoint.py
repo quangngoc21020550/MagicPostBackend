@@ -33,10 +33,31 @@ class gatheringPointInsmodel(BaseModel):
 class gatheringPoint(modelBase):
     pass
 
-def gatheringPointInsert(gatheringPointInfo, gatheringPointdb):
-    resp = gatheringPointdb.insert_doc("", json=gatheringPointInfo)
-    return resp
+class getAllGatheringPointModel(BaseModel):
+    pagesize: int
+    pageindex: int
+
+class getAllGatheringPointBelongingsModel(BaseModel):
+    gatheringPointId : str
+    pagesize: int
+    pageindex: int
 
 class gatheringPointUpdManagerModel(BaseModel):
     pointId: str
     managedBy: str
+
+def gatheringPointInsert(gatheringPointInfo, gatheringPointdb):
+    resp = gatheringPointdb.insert_doc("", json=gatheringPointInfo)
+    return resp
+
+def getAllPoint(getInfo, pointdb):
+    pagesize = getInfo["pagesize"]
+    pageindex = getInfo["pageindex"]
+    return 200, list(pointdb.getModel().find().sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
+
+def getAllBelongings(getInfo,transpointdb):
+    gatheringPointId = getInfo["gatheringPointId"]
+    pagesize = getInfo["pagesize"]
+    pageindex = getInfo["pageindex"]
+    return 200, list(transpointdb.getModel().find({"belongsTo":gatheringPointId}).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
+

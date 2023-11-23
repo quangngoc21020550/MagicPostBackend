@@ -10,7 +10,7 @@ from typing import List
 # from app.callcache import dict_cache
 from app.models import common
 from app.models.category import gatheringPoint, gatheringPointdb, manager, managerdb, employee, employeedb, \
-    transactionPointdb, transactionPoint
+    transactionPointdb, transactionPoint, toStorageOrderdb, storagedb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -66,6 +66,11 @@ validate_token: str = Header("")
         numTransPointLeft = len(list(transactionPointdb.getModel().find({"belongsTo": pointId})))
         if numTransPointLeft + numEmployeeLeft + numManagerLeft > 0:
             raise Exception('Still workers or transaction points left')
+        numOrdersLeft = len(list(toStorageOrderdb.getModel().find({"fromPoint": pointId}, {'status': 'transporting'}))) + \
+                        len(list(toStorageOrderdb.getModel().find({"toPoint": pointId}, {'status': 'transporting'})))
+        numPackageLeft = len(list(storagedb.getModel().find({"pointId": pointId})))
+        if numOrdersLeft + numPackageLeft > 0:
+            raise Exception('Still processing orders left')
         resp = gatheringPointdb.delete_doc("", json=body)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
@@ -124,3 +129,43 @@ async def insedrt(
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": str(e)})
 
+
+@router.post("/get-gathering-points")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: gatheringPoint.getAllGatheringPointModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        resp = gatheringPoint.getAllPoint(body, gatheringPointdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.post("/get-gathering-belongings")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: gatheringPoint.getAllGatheringPointBelongingsModel = Body(..., embed=True),
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        if 'director' != common.getRoleFromToken(validate_token):
+            raise Exception("Must be director to perform")
+        body = jsonable_encoder(body)
+        resp = gatheringPoint.getAllBelongings(body, transactionPointdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})

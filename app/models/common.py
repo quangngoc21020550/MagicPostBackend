@@ -96,6 +96,12 @@ def checkEmployeeExist(employeeId, type, employeedb):
         return False
     return True
 
+def getCustomer(customerId, customerdb):
+    try:
+        return list(customerdb.getModel().find({"username": customerId}))[0]
+    except Exception:
+        return None
+
 
 def validate_email(email):
     if re.match(r"[^@]+@[^@]+\.[^@]+", email):

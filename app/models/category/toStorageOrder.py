@@ -10,6 +10,7 @@ class toStorageOrderModel(BaseModel):
     id: str = Field(..., alias='_id')
     fromType: str
     toType: str
+    packageId: str
     fromPoint: str
     toPoint: str
     responsibleBy: str
@@ -28,8 +29,9 @@ class toStorageOrderSearch(BaseModel):
     pageindex: int
 
 class toStorageOrderInsmodel(BaseModel):
-    fromType: str
-    toType: str
+    # fromType: str
+    # toType: str
+    packageId: str
     fromPoint: str
     toPoint: str
     responsibleBy: str
@@ -41,6 +43,12 @@ class toStorageOrderInsmodel(BaseModel):
 
 class toStorageOrderVerifymodel(BaseModel):
     id: str = Field(..., alias='_id')
+    fromType: str
+    toType: str
+    packageId: str
+    fromPoint: str
+    toPoint: str
+    responsibleBy: str
     status: str
     verifiedBy: Optional[str] = None
     verifiedDate: Optional[int] = None
@@ -71,11 +79,12 @@ def toStorageOrderVerify(toStorageOrderVerifyInfo, toStorageOrderdb, employeedb)
         toStorageOrderInfo = list(toStorageOrderdb.getModel().find({"_id": toStorageOrderVerifyInfo["_id"]}))[0]
     except:
         return (400, {"message": "data not found"})
+    if not (common.checkEmployeeExist(toStorageOrderVerifyInfo['verifiedBy'], toStorageOrderInfo['toType'], employeedb)):
+        return (400, {"message": toStorageOrderInfo['toType'] + " employee not exist"})
+    if toStorageOrderInfo.get('status') != "transporting":
+        raise Exception("Already verified by someone else")
     toStorageOrderInfo['status'] = toStorageOrderVerifyInfo.get('status')
     toStorageOrderInfo['verifiedBy'] = toStorageOrderVerifyInfo.get('verifiedBy')
     toStorageOrderInfo['verifiedDate'] = toStorageOrderVerifyInfo.get('verifiedDate')
-    if toStorageOrderInfo['verifiedBy'] is None:
-        resp = toStorageOrderdb.update_doc("", json=toStorageOrderInfo)
-        return resp
-    if not (common.checkEmployeeExist(toStorageOrderInfo['verifiedBy'], toStorageOrderInfo['toType'], employeedb)):
-        return (400, {"message": toStorageOrderInfo['toType'] + " employee not exist"})
+    resp = toStorageOrderdb.update_doc("", json=toStorageOrderInfo)
+    return resp
