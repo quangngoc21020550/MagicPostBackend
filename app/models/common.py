@@ -130,10 +130,33 @@ def reset_password_via_email(email, newPassword):
         server.login('hanquangngoc08@gmail.com', 'eulh jzkc bqcm xefz')
         text = msg.as_string()
         server.sendmail('noreply@example.com', email, text)
-        server.verify()
         server.quit()
 
         return True
+    except Exception as e:
+        # Log the error
+        logger.info(f"Error: {e}")
+        return False
+
+def send_email(email, message):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = 'noreply@example.com'
+        msg['To'] = email
+        msg['Subject'] = 'Password Reset'
+        body = f'{message}'
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Send the email
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login('hanquangngoc08@gmail.com', 'eulh jzkc bqcm xefz')
+        text = msg.as_string()
+        code = server.sendmail('noreply@example.com', email, text)
+        server.quit()
+        if code == 250:
+            return True
+        return False
     except Exception as e:
         # Log the error
         logger.info(f"Error: {e}")

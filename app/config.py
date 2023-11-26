@@ -9,3 +9,5 @@ SECRET_KEY = '123456'
 TOKEN_EXPIRED = 60 * 60 * 24 * 2   #seconds
 
 VALID_ROLES = ['customer', 'gathering-point-manager', 'transaction-point-manager', 'gathering-point-employee', 'transaction-point-employee', 'director']
+
+WELCOME_MESSAGE = "Welcome to magicpost"

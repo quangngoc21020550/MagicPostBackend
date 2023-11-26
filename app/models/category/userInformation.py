@@ -84,8 +84,8 @@ def signUp(userInformation, userinformationdb):
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email field must be implemented"})
     elif common.validate_email(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Wrong email format"})
-    elif common.email_verify(email) is False:
-        return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
+    # elif common.send_email(email, config.WELCOME_MESSAGE) is False:
+    #     return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
     elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})
     if len(list(userinformationdb.getModel().find({"username": username}))) != 0:
@@ -160,8 +160,8 @@ def userUpdate(userInformation, userinformationdb):
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email field must be implemented"})
     elif common.validate_email(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Wrong email format"})
-    elif common.email_verify(email) is False:
-        return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
+    # elif common.send_email(email, config.WELCOME_MESSAGE) is False:
+    #     return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
     elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})
 
