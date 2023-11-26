@@ -71,8 +71,8 @@ class userInformationChangePasswordmodel(BaseModel):
     newPassword: str
 
 def signUp(userInformation, userinformationdb):
-    import nest_asyncio
-    nest_asyncio.apply()
+    # import nest_asyncio
+    # nest_asyncio.apply()
     username = userInformation.get('username').lower()
     password = userInformation.get('password')
     email = userInformation.get('email').lower()
@@ -84,7 +84,7 @@ def signUp(userInformation, userinformationdb):
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email field must be implemented"})
     elif common.validate_email(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Wrong email format"})
-    elif verify_email(email) is False:
+    elif common.email_verify(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
     elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})
@@ -138,8 +138,8 @@ def changePassword(userInformation, userinformationdb):
     return resp
 
 def userUpdate(userInformation, userinformationdb):
-    import nest_asyncio
-    nest_asyncio.apply()
+    # import nest_asyncio
+    # nest_asyncio.apply()
     username = userInformation.get('username').lower()
     try:
         thisUser = list(userinformationdb.getModel().find({'username': username}))[0]
@@ -160,7 +160,7 @@ def userUpdate(userInformation, userinformationdb):
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email field must be implemented"})
     elif common.validate_email(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Wrong email format"})
-    elif verify_email(email) is False:
+    elif common.email_verify(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
     elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})

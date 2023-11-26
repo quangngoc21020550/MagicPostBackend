@@ -3,9 +3,11 @@ import hashlib
 import re
 
 import smtplib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 # from random import randint
+import dns
 import jwt
 import string
 import random
@@ -128,6 +130,7 @@ def reset_password_via_email(email, newPassword):
         server.login('hanquangngoc08@gmail.com', 'eulh jzkc bqcm xefz')
         text = msg.as_string()
         server.sendmail('noreply@example.com', email, text)
+        server.verify()
         server.quit()
 
         return True
@@ -135,6 +138,38 @@ def reset_password_via_email(email, newPassword):
         # Log the error
         logger.info(f"Error: {e}")
         return False
+
+def email_verify(email):
+    try:
+        domain_name = email.split('@')[1]
+        records = dns.resolver.resolve(domain_name, 'MX')
+        mxRecord = records[0].exchange
+        mxRecord = str(mxRecord)
+        host = socket.gethostname()
+        server = smtplib.SMTP()
+        server.set_debuglevel(0)
+        server.connect(mxRecord)
+        server.helo(host)
+        server.mail('hanquangngoc08@gmail.com')
+        code, message = server.rcpt(email)
+        server.quit()
+        if code == 250:
+            return True
+        return False
+    except Exception as e:
+        logger.info(f"Error: {e}")
+        return False
+    # try:
+    #     server = smtplib.SMTP('smtp.gmail.com', 587)
+    #     server.starttls()
+    #     server.login('hanquangngoc08@gmail.com', 'eulh jzkc bqcm xefz')
+    #     server.mail('hanquangngoc08@gmail.com')
+    #     code, message = server.rcpt(email)
+    #     server.quit()
+    #     return True
+    # except Exception as e:
+    #     logger.info(f"Error: {e}")
+    #     return False
 
 
 
