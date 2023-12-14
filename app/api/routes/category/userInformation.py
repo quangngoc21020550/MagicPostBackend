@@ -53,6 +53,8 @@ validate_token: str = Header("")
 async def get(validate_token: str = Header("")):
     try:
         resp = userInformation.getUser(validate_token, userInformationdb)
+        username = resp[1]['username']
+        resp[1]["pointId"] = userInformation.getCompanyMemberPointId(username, managerdb, employeedb)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400, content={'message': str(e)})

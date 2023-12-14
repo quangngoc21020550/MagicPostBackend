@@ -222,3 +222,10 @@ def companyMemberDeleteAccount(memberId, role, managerdb,employeedb):
         employeedb.getModel().delete_one({'username':memberId})
     elif role == "transaction-point-employee":
         employeedb.getModel().delete_one({'username':memberId})
+
+def getCompanyMemberPointId(memberId, managerdb, employeedb):
+    try:
+        listrs = list(managerdb.getModel().find({"username": memberId})) + list(employeedb.getModel().find({"username": memberId}))
+        return listrs[0]['pointManaged']
+    except Exception:
+        return ""

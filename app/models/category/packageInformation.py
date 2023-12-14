@@ -12,6 +12,11 @@ class packageInformationModel(BaseModel):
     responsibleBy: str
     fromTransactionPoint: str
     toTransactionPoint: str
+    receiverName: str
+    receiverAddress: str
+    receiverPhone: str
+    packageType: int
+    instruction: int
     status: str
     createdDate: int
     lastUpdatedDate: int
@@ -33,6 +38,11 @@ class packageInformationInsmodel(BaseModel):
     responsibleBy: str
     fromTransactionPoint: str
     toTransactionPoint: str
+    receiverName: str
+    receiverAddress: str
+    receiverPhone: str
+    packageType: int
+    instruction: int
     # status: str
     createdDate: int
     lastUpdatedDate: int

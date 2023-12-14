@@ -56,6 +56,13 @@ def transactionPointUpdateGatheringPoint(gatheringPointId,newGatheringPointId, t
         transpoint['belongsTo'] = newGatheringPointId
         transactionPointdb.update_doc("", json=transpoint)
 
+def transactionPointGetGatheringPoint(transactionPointId, transactionPointdb):
+    try:
+        transPoint = list(transactionPointdb.getModel().find({'_id': transactionPointId}))[0]
+        return (200, {"_id": transPoint['belongsTo']})
+    except Exception:
+        raise Exception("transaction point not found")
+
 def oneTransactionPointUpdateGatheringPoint(transactionPointId,newGatheringPointId, transactionPointdb):
     try:
         thisTransPoint = list(transactionPointdb.getModel().find({'_id': transactionPointId}))[0]
