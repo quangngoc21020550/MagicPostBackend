@@ -142,8 +142,8 @@ validate_token: str = Header("")
     #     detail=strings.INCORRECT_INPUT,
     # )
     try:
-        if 'director' != common.getRoleFromToken(validate_token):
-            raise Exception("Must be director to perform")
+        # if 'director' != common.getRoleFromToken(validate_token):
+        #     raise Exception("Must be director to perform")
         body = jsonable_encoder(body)
         resp = gatheringPoint.getAllPoint(body, gatheringPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
@@ -162,8 +162,8 @@ validate_token: str = Header("")
     #     detail=strings.INCORRECT_INPUT,
     # )
     try:
-        if 'director' != common.getRoleFromToken(validate_token):
-            raise Exception("Must be director to perform")
+        # if 'director' != common.getRoleFromToken(validate_token):
+        #     raise Exception("Must be director to perform")
         body = jsonable_encoder(body)
         resp = gatheringPoint.getAllBelongings(body, transactionPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])

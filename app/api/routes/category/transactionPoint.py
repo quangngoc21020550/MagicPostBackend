@@ -158,8 +158,8 @@ async def insedrt(
     validate_token: str = Header("")
 ):
     try:
-        if 'director' != common.getRoleFromToken(validate_token):
-            raise Exception("Must be director to perform")
+        # if 'director' != common.getRoleFromToken(validate_token):
+        #     raise Exception("Must be director to perform")
         body = jsonable_encoder(body)
         resp = transactionPointdb.update_doc("", json=body)
         return JSONResponse(status_code=resp[0], content=resp[1])
@@ -179,8 +179,8 @@ validate_token: str = Header("")
     #     detail=strings.INCORRECT_INPUT,
     # )
     try:
-        if 'director' != common.getRoleFromToken(validate_token):
-            raise Exception("Must be director to perform")
+        # if 'director' != common.getRoleFromToken(validate_token):
+        #     raise Exception("Must be director to perform")
         body = jsonable_encoder(body)
         resp = transactionPoint.getAllPoint(body, transactionPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
