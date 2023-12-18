@@ -10,7 +10,7 @@ from typing import List
 # from app.callcache import dict_cache
 from app.models import common
 from app.models.category import toStorageOrder, toStorageOrderdb, gatheringPointdb, transactionPointdb, employeedb, \
-    storage, storagedb
+    storage, storagedb, transactionPoint
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -52,8 +52,10 @@ validate_token: str = Header("")
         encoded_body = jsonable_encoder(body)
         encoded_body["fromType"] = "transaction"
         encoded_body["toType"] = "gathering"
-        if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["fromPoint"], storagedb))==0:
+        if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["fromPoint"], storagedb)) == 0:
             raise Exception("Package not found in storage")
+
+        encoded_body["toPoint"] = transactionPoint.transactionPointGetGatheringPoint(transactionPointId=encoded_body["fromPoint"], transactionPointdb=transactionPointdb)
         resp = toStorageOrder.toStorageOrderInsert(encoded_body, toStorageOrderdb, gatheringPointdb, transactionPointdb, employeedb)
         if resp[0] == 200:
             storage.removeFromStorage(resp[1]["packageId"], storagedb)

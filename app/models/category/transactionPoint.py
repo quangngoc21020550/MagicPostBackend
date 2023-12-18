@@ -59,7 +59,7 @@ def transactionPointUpdateGatheringPoint(gatheringPointId,newGatheringPointId, t
 def transactionPointGetGatheringPoint(transactionPointId, transactionPointdb):
     try:
         transPoint = list(transactionPointdb.getModel().find({'_id': transactionPointId}))[0]
-        return (200, {"_id": transPoint['belongsTo']})
+        return transPoint['belongsTo']
     except Exception:
         raise Exception("transaction point not found")
 

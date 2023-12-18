@@ -187,22 +187,22 @@ validate_token: str = Header("")
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
 
-@router.post("/get-transaction-belong")
-# @authrequire.check_roles_required(roles_required=["admin"])
-async def insedrt(
-    body: transactionPoint.transactionPointDel = Body(..., embed=True),
-validate_token: str = Header("")
-        # current_user: dict = Depends(get_current_user),request : Request = None
-):
-    # wrong_get_error = HTTPException(
-    #     status_code=HTTP_400_BAD_REQUEST,
-    #     detail=strings.INCORRECT_INPUT,
-    # )
-    try:
-        # if 'director' != common.getRoleFromToken(validate_token):
-        #     raise Exception("Must be director to perform")
-        body = jsonable_encoder(body)
-        resp = transactionPoint.transactionPointGetGatheringPoint(body["_id"], transactionPointdb)
-        return JSONResponse(status_code=resp[0],content=resp[1])
-    except Exception as e:
-        return JSONResponse(status_code=400,content={"message" : str(e)})
+# @router.post("/get-transaction-belong")
+# # @authrequire.check_roles_required(roles_required=["admin"])
+# async def insedrt(
+#     body: transactionPoint.transactionPointDel = Body(..., embed=True),
+# validate_token: str = Header("")
+#         # current_user: dict = Depends(get_current_user),request : Request = None
+# ):
+#     # wrong_get_error = HTTPException(
+#     #     status_code=HTTP_400_BAD_REQUEST,
+#     #     detail=strings.INCORRECT_INPUT,
+#     # )
+#     try:
+#         # if 'director' != common.getRoleFromToken(validate_token):
+#         #     raise Exception("Must be director to perform")
+#         body = jsonable_encoder(body)
+#         resp = transactionPoint.transactionPointGetGatheringPoint(body["_id"], transactionPointdb)
+#         return JSONResponse(status_code=resp[0],content=resp[1])
+#     except Exception as e:
+#         return JSONResponse(status_code=400,content={"message" : str(e)})
