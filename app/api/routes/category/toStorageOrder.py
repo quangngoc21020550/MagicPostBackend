@@ -174,3 +174,15 @@ async def get(packageId: str = ""):
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
 
+@router.get("/get-unverified-order")
+async def get(storageId: str = ""):
+    try:
+        qr = {"$and": [
+            {"toPoint": storageId},
+            {'status': 'transporting'}
+        ]}
+        resp = list(toStorageOrderdb.getModel().find(qr))
+        return JSONResponse(status_code=200,content=resp)
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
