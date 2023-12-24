@@ -11,7 +11,7 @@ from typing import List
 # from app.callcache import dict_cache
 from app.models import common
 from app.models.category import packageInformation, packageInformationdb, gatheringPointdb, transactionPointdb, storage, \
-    storagedb, customerdb, toCustomerOrderdb, toStorageOrderdb
+    storagedb, customerdb, toCustomerOrderdb, toStorageOrderdb, userInformationdb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -111,11 +111,53 @@ validate_token: str = Header("")
     #     detail=strings.INCORRECT_INPUT,
     # )
     try:
-        if not common.getRoleFromToken(validate_token) == "customer":
-            raise Exception("No authorization")
+        # if not common.getRoleFromToken(validate_token) == "customer":
+        #     raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
         resp = packageInformation.getInfoForPackage(encoded_body, toStorageOrderdb, toCustomerOrderdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
+
+@router.get("/get-information")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    packageId: str = "",
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        # if not common.getRoleFromToken(validate_token) == "customer":
+        #     raise Exception("No authorization")
+        try:
+            package = list(packageInformationdb.getModel().find({"_id": packageId}))[0]
+        except Exception:
+            raise Exception('data not found')
+        fromPointId = package['fromTransactionPoint']
+        toPointId = package['toTransactionPoint']
+        try:
+            fromPointName = list(transactionPointdb.getModel().find({"_id": fromPointId}))[0]['name']
+            toPointName = list(transactionPointdb.getModel().find({"_id": toPointId}))[0]['name']
+        except Exception:
+            raise Exception('point not found')
+        sender = package["sender"]
+        responsibleBy = package['responsibleBy']
+        try:
+            senderName = list(userInformationdb.getModel().find({"username": sender}))[0]['lastName']
+            emName = list(userInformationdb.getModel().find({"username": responsibleBy}))[0]['lastName']
+        except Exception:
+            raise Exception('user not found')
+
+        package["fromPoint"] = fromPointName
+        package["toPoint"] = toPointName
+        package["senderName"] = senderName
+        package["employeeName"] = emName
+
+        return JSONResponse(status_code=200,content=package)
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message": str(e)})
 
