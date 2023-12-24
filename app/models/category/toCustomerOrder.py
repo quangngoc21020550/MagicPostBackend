@@ -89,9 +89,10 @@ def getData(getInfo, toCustomerOrderdb):
     employeeId = getInfo["employeeId"]
     query = {"$and": [
         {"transactionPointId": pointId},
-        {"status": type}
     ]}
     if employeeId != "all":
         query["$and"].append({"responsibleBy": employeeId})
+    if type != 'all':
+        query["$and"].append({"status": type})
 
     return 200, list(toCustomerOrderdb.getModel().find(query).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
