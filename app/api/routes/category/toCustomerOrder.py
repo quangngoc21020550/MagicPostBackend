@@ -110,5 +110,27 @@ validate_token: str = Header("")
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
 
+@router.get("/get-unverified-order")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    employeeId: str = "",
+validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        qr = {"$and": [
+            {"responsibleBy": employeeId},
+            {"status": "transporting"}
+        ]}
+        resp = list(toCustomerOrderdb.getModel().find(qr))
+        # dict_cache.runApp()
+        return JSONResponse(status_code=200,content=resp)
+    except Exception as e:
+        return JSONResponse(status_code=400,content={"message" : str(e)})
+
 
 
