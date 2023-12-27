@@ -95,7 +95,7 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "customer":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
-        resp = packageInformation.getPackageForCustomer(encoded_body, packageInformationdb, toStorageOrderdb, transactionPointdb, gatheringPointdb)
+        resp = packageInformation.getPackageForCustomer(encoded_body, packageInformationdb, toStorageOrderdb,toCustomerOrderdb, transactionPointdb, gatheringPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})

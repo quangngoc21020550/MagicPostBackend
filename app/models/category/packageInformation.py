@@ -76,16 +76,32 @@ def updatePackageStatus(packageId, status, packageInformationdb):
     resp = packageInformationdb.update_doc("", json=thisPackage)
     return resp
 
-def getPackageForCustomer(getInfo, packagedb,toStorageOrderdb, transactionPointdb, gatheringPointdb):
+def getPackageForCustomer(getInfo, packagedb,toStorageOrderdb,toCustomerOrderdb, transactionPointdb, gatheringPointdb):
     pagesize = getInfo["pagesize"]
     pageindex = getInfo["pageindex"]
     customerId = getInfo["customerId"]
 
     def getPointName(pkg):
         try:
-            listTrans = list(toStorageOrderdb.getModel().find({"packageId": pkg['_id']}))
+            listStrOrder = list(toStorageOrderdb.getModel().find({"packageId": pkg['_id']}))
+            listCusOrder = list(toCustomerOrderdb.getModel().find({"packageId": pkg['_id']}))
             message = "Đang lưu trữ tại "
             type = ""
+            toCus = len(listCusOrder) > 0
+            if toCus:
+                lastOrder = listCusOrder[len(listCusOrder) - 1]
+                if lastOrder['status'] == 'transporting':
+                    pkg["message"] = "Đang vận chuyển tới tay người nhận"
+                    return pkg
+                elif lastOrder['status'] == 'received':
+                    pkg["message"] = "Đã vận chuyển tới tay người nhận"
+                    return pkg
+                else:
+                    pointId = lastOrder["fromPoint"]
+                    storageName = list(transactionPointdb.getModel().find({"_id": pointId}))[0]['name']
+                    pkg['message'] = "Đang lưu trữ tại " + storageName
+                    return pkg
+            listTrans = listStrOrder
             try:
                 lastOrder = listTrans[len(listTrans)-1]
                 # pointId = ""
@@ -111,8 +127,8 @@ def getPackageForCustomer(getInfo, packagedb,toStorageOrderdb, transactionPointd
                 pointdb = gatheringPointdb
                 message += "điểm tập kết "
             storageName = list(pointdb.getModel().find({"_id": pointId}))[0]['name']
-            pkg["pointName"] = storageName
-            pkg['pointType'] = type
+            # pkg["pointName"] = storageName
+            # pkg['pointType'] = type
             pkg['message'] = message + storageName
 
         except Exception:

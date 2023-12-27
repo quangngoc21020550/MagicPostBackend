@@ -32,6 +32,8 @@ validate_token: str = Header("")
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
         encoded_body["status"] = "transporting"
+        encoded_body["fromPoint"] = encoded_body["transactionPointId"]
+        encoded_body["toPoint"] = "tay người nhận"
         if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["transactionPointId"], storagedb))==0:
             raise Exception("Package not found in storage")
         resp = toCustomerOrder.toCustomerOrderInsert(encoded_body, toCustomerOrderdb, gatheringPointdb, transactionPointdb, employeedb, packageInformationdb)
