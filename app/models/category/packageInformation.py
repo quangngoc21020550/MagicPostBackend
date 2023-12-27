@@ -97,7 +97,7 @@ def getPackageForCustomer(getInfo, packagedb,toStorageOrderdb,toCustomerOrderdb,
                     pkg["message"] = "Đã vận chuyển tới tay người nhận"
                     return pkg
                 else:
-                    pointId = lastOrder["fromPoint"]
+                    pointId = lastOrder["transactionPointId"]
                     storageName = list(transactionPointdb.getModel().find({"_id": pointId}))[0]['name']
                     pkg['message'] = "Đang lưu trữ tại " + storageName
                     return pkg
