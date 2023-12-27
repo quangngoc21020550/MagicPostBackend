@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -31,6 +34,9 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "transaction-point-employee":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
+        now = datetime.datetime.now()
+        datestr = str(now.year - 2000) + str(now.month) + str(now.day)
+        encoded_body = datestr + "-" + common.genStaticCode(5)
         encoded_body["status"] = "transporting"
         encoded_body["fromPoint"] = encoded_body["transactionPointId"]
         encoded_body["toPoint"] = "tay người nhận"

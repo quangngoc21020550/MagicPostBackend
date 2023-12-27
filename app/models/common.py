@@ -197,7 +197,7 @@ def email_verify(email):
 
 
 def generate_random_string(num:int):
-        return ''.join(random.sample(string.ascii_lowercase, num))
+        return ''.join(random.sample(string.ascii_letters, num))
 
 def genStaticCode(numlen:int = 8):
     randomCode = generate_random_string(numlen)
