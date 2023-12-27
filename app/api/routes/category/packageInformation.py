@@ -33,7 +33,7 @@ validate_token: str = Header("")
         customerId = encoded_body.get('sender')
         if common.getCustomer(customerId, customerdb) is None:
             raise Exception('Customer not found')
-        encoded_body["_id"] = common.genStaticCode(5).upper()
+        encoded_body["_id"] = common.genStaticCode(6).upper()
         resp = packageInformation.createPackageInfomation(encoded_body,packageInformationdb, gatheringPointdb, transactionPointdb)
         # dict_cache.runApp()
         if resp[0] == 200:
