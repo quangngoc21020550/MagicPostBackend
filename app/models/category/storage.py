@@ -64,7 +64,7 @@ def getPackageInStorage(getInfo, storagedb):
     pointId = getInfo["pointId"]
     return 200, list(storagedb.getModel().find({"pointId": pointId}).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
 
-def getDataInStorage(getInfo, toStoragedb, toCustomerdb):
+def getDataInStorage(getInfo, toStoragedb, toCustomerdb, packageInformationdb):
     pagesize = getInfo["pagesize"]
     pageindex = getInfo["pageindex"]
     pointId = getInfo["pointId"]
@@ -79,6 +79,9 @@ def getDataInStorage(getInfo, toStoragedb, toCustomerdb):
         listToCustomer = list(toCustomerdb.getModel().find(query).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
     else:
         key = "toPoint"
+        listToCustomer = list(packageInformationdb.getModel().find({"fromTransactionPoint": pointId}))
+        for order in listToCustomer:
+            order["packageId"] = order["_id"]
     query = {"$and": [
         {key: pointId},
         {"status": "received"}

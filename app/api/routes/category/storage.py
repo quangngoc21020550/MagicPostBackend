@@ -9,7 +9,7 @@ from typing import List
 # from app.core.utilscm.authrequire import get_current_user
 # from app.callcache import dict_cache
 from app.models import common
-from app.models.category import storage, storagedb, toStorageOrderdb, toCustomerOrderdb
+from app.models.category import storage, storagedb, toStorageOrderdb, toCustomerOrderdb, packageInformationdb
 
 router = APIRouter()
 # security = HTTPBasic()
@@ -66,7 +66,7 @@ validate_token: str = Header("")
     try:
         # if not common.getRoleFromToken(validate_token)
         encoded_body = jsonable_encoder(body)
-        resp = storage.getDataInStorage(encoded_body, toStorageOrderdb, toCustomerOrderdb)
+        resp = storage.getDataInStorage(encoded_body, toStorageOrderdb, toCustomerOrderdb, packageInformationdb)
         # dict_cache.runApp()
         return JSONResponse(status_code=resp[0], content=resp[1])
     except Exception as e:

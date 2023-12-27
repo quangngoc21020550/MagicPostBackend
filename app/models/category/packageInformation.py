@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import pymongo
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -74,11 +76,57 @@ def updatePackageStatus(packageId, status, packageInformationdb):
     resp = packageInformationdb.update_doc("", json=thisPackage)
     return resp
 
-def getPackageForCustomer(getInfo, packagedb):
+def getPackageForCustomer(getInfo, packagedb,toStorageOrderdb, transactionPointdb, gatheringPointdb):
     pagesize = getInfo["pagesize"]
     pageindex = getInfo["pageindex"]
     customerId = getInfo["customerId"]
-    return 200, list(packagedb.getModel().find({"sender": customerId}).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
+
+    def getPointName(pkg):
+        try:
+            listTrans = list(toStorageOrderdb.getModel().find({"packageId": pkg['_id']}))
+            message = "Đang lưu trữ tại "
+            type = ""
+            try:
+                lastOrder = listTrans[len(listTrans)-1]
+                # pointId = ""
+                if lastOrder['status'] == 'transporting':
+                    message = "Đang vận chuyển tới "
+                    pointId = lastOrder["toPoint"]
+                    type = lastOrder["toType"]
+                elif lastOrder['status'] == 'received':
+                    pointId = lastOrder["toPoint"]
+                    type = lastOrder["toType"]
+                else:
+                    pointId = lastOrder["fromPoint"]
+                    type = lastOrder["fromType"]
+            except Exception:
+                pointId = pkg["fromTransactionPoint"]
+                type = 'transaction'
+
+            # currStorage = None
+            if type == 'transaction':
+                pointdb = transactionPointdb
+                message += "điểm giao dịch "
+            else:
+                pointdb = gatheringPointdb
+                message += "điểm tập kết "
+            storageName = list(pointdb.getModel().find({"_id": pointId}))[0]['name']
+            pkg["pointName"] = storageName
+            pkg['pointType'] = type
+            pkg['message'] = message + storageName
+
+        except Exception:
+            pass
+        return pkg
+
+    listPackage = list(packagedb.getModel().find({"sender": customerId}).sort('createdDate', -1).limit(pagesize).skip(pagesize* (pageindex-1)))
+    pool = ThreadPoolExecutor(max_workers=len(listPackage) + 1)
+    listPackageWPName = list(pool.map(getPointName, listPackage))
+    pool.shutdown()
+    # for pkg in listPackage:
+    #
+    return 200, listPackageWPName
+
 
 def getInfoForPackage(getInfo, toStoragedb, toCustomerdb):
     packageId = getInfo["packageId"]

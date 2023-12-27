@@ -63,8 +63,10 @@ def forgotPassword(username,userInformation, userInformationdb, passwordForgotRe
     newPassword = common.genStaticCode(8)
     # newPassword = "abc"
     thisUser["password"] = newPassword
-    resp = userInformation.changePassword(thisUser, userInformationdb)
-    return common.reset_password_via_email(thisUser["email"], newPassword)
+    if common.reset_password_via_email(thisUser["email"], newPassword):
+        resp = userInformation.changePassword(thisUser, userInformationdb)
+        return resp
+    raise Exception("Cant send email")
     # else:
     #     resp = sendPasswordResupplyRq(thisUser, passwordForgotRequestdb, employeedb, managerdb, directordb)
     # return resp

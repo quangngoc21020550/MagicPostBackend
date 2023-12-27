@@ -33,6 +33,7 @@ validate_token: str = Header("")
         customerId = encoded_body.get('sender')
         if common.getCustomer(customerId, customerdb) is None:
             raise Exception('Customer not found')
+        encoded_body["_id"] = common.genStaticCode(5).upper()
         resp = packageInformation.createPackageInfomation(encoded_body,packageInformationdb, gatheringPointdb, transactionPointdb)
         # dict_cache.runApp()
         if resp[0] == 200:
@@ -94,7 +95,7 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "customer":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
-        resp = packageInformation.getPackageForCustomer(encoded_body, packageInformationdb)
+        resp = packageInformation.getPackageForCustomer(encoded_body, packageInformationdb, storagedb, transactionPointdb, gatheringPointdb)
         return JSONResponse(status_code=resp[0],content=resp[1])
     except Exception as e:
         return JSONResponse(status_code=400,content={"message" : str(e)})
