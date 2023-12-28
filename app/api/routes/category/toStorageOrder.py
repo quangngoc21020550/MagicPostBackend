@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi.responses import JSONResponse
 # from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -29,6 +31,9 @@ validate_token: str = Header("")
     # )
     try:
         ct = jsonable_encoder(toStorageOrder)
+        now = datetime.datetime.now()
+        datestr = str(now.year - 2000) + str(now.month) + str(now.day)
+        ct["_id"] = datestr + "-" + common.genStaticCode(5)
         resp = toStorageOrderdb.insert_doc("", json=ct)
         # dict_cache.runApp()
         return JSONResponse(status_code=resp[0],content=resp[1])
@@ -50,6 +55,9 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "transaction-point-employee":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
+        now = datetime.datetime.now()
+        datestr = str(now.year - 2000) + str(now.month) + str(now.day)
+        encoded_body["_id"] = datestr + "-" + common.genStaticCode(5)
         encoded_body["fromType"] = "transaction"
         encoded_body["toType"] = "gathering"
         if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["fromPoint"], storagedb)) == 0:
@@ -78,6 +86,9 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "gathering-point-employee":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
+        now = datetime.datetime.now()
+        datestr = str(now.year - 2000) + str(now.month) + str(now.day)
+        encoded_body["_id"] = datestr + "-" + common.genStaticCode(5)
         encoded_body["fromType"] = "gathering"
         encoded_body["toType"] = "gathering"
         if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["fromPoint"], storagedb))==0:
@@ -104,6 +115,9 @@ validate_token: str = Header("")
         if not common.getRoleFromToken(validate_token) == "gathering-point-employee":
             raise Exception("No authorization")
         encoded_body = jsonable_encoder(body)
+        now = datetime.datetime.now()
+        datestr = str(now.year - 2000) + str(now.month) + str(now.day)
+        encoded_body["_id"] = datestr + "-" + common.genStaticCode(5)
         encoded_body["fromType"] = "gathering"
         encoded_body["toType"] = "transaction"
         if len(storage.getRecordInStorage(encoded_body["packageId"], encoded_body["fromPoint"], storagedb))==0:

@@ -184,3 +184,21 @@ async def insedrt(
         return JSONResponse(status_code=400, content={'message': str(e)})
 
 
+
+@router.post("/user-update")
+# @authrequire.check_roles_required(roles_required=["admin"])
+async def insedrt(
+    body: userInformation.userInformationSignUpmodel = Body(..., embed=True),validate_token: str = Header("")
+        # current_user: dict = Depends(get_current_user),request : Request = None
+):
+    # wrong_get_error = HTTPException(
+    #     status_code=HTTP_400_BAD_REQUEST,
+    #     detail=strings.INCORRECT_INPUT,
+    # )
+    try:
+        encoded_body = jsonable_encoder(body)
+        resp = userInformation.userUpdate(encoded_body, userInformationdb)
+        return JSONResponse(status_code=resp[0],content=resp[1])
+    except Exception as e:
+        return JSONResponse(status_code=400, content={'message': str(e)})
+
