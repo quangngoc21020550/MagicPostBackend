@@ -16,6 +16,11 @@ class userInformationModel(BaseModel):
     password: str
     role: str
     email: Optional[str] = None
+    familyName: Optional[str] = ""
+    lastName: Optional[str] = ""
+    dateOfBirth: Optional[int] = None
+    managedBy: Optional[str] = None
+    pointManaged: Optional[str] = None
     createdDate: int
     lastUpdatedDate: int
 
@@ -152,18 +157,18 @@ def userUpdate(userInformation, userinformationdb):
     # userInformation['username'] = username
     # userInformationOut["password"] = hashedPassword
     email = userInformation.get('email').lower()
-    role = userInformation.get('role')
-    if role not in config.VALID_ROLES:
-        return (status.HTTP_400_BAD_REQUEST, {"message": "invalid role"})
-    # if role == 'customer':
+    # role = userInformation.get('role')
+    # if role not in config.VALID_ROLES:
+    #     return (status.HTTP_400_BAD_REQUEST, {"message": "invalid role"})
+    # # if role == 'customer':
     if email is None:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Email field must be implemented"})
     elif common.validate_email(email) is False:
         return (status.HTTP_400_BAD_REQUEST, {"message": "Wrong email format"})
-    # elif common.send_email(email, config.WELCOME_MESSAGE) is False:
-    #     return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
-    elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
-        return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})
+    # # elif common.send_email(email, config.WELCOME_MESSAGE) is False:
+    # #     return (status.HTTP_400_BAD_REQUEST, {"message": "Email domain not exist"})
+    # elif len(list(userinformationdb.getModel().find({"email": email}))) != 0:
+    #     return (status.HTTP_400_BAD_REQUEST, {"message": "Email had already used"})
 
     userInformation["_id"] = thisUser["_id"]
     userInformation["password"] = thisUser["password"]
