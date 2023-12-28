@@ -136,8 +136,12 @@ def changePassword(userInformation, userinformationdb):
     username = userInformation.get('username').lower()
     password = userInformation.get('password')
     hashedPassword = common.hash_password(password, username)
-    userInformationOut = userInformation.copy()
-    userInformation['username'] = username
+    try:
+        thisUser = list(userinformationdb.getModel().find({'username': username}))[0]
+    except Exception:
+        raise Exception('data not found')
+    userInformationOut = thisUser.copy()
+    userInformationOut['username'] = username
     userInformationOut["password"] = hashedPassword
     resp = userinformationdb.update_doc("", json=userInformationOut)
     return resp
